@@ -1,7 +1,7 @@
 'use strict';
 const levelCode = { CE: 0, B: 0.1, BA: 0.25, A: 0.5, AE: 0.75, E: 0.9 };
 
-function getHardSkills(allFields, person) {
+function getHardSkills(allFields, person, showFutureValue) {
     return allFields.reduce(
         (newArray, singleLine) => {
             const { type, skill } = singleLine;
@@ -10,10 +10,9 @@ function getHardSkills(allFields, person) {
                 if (person) {
                     value = levelCode[singleLine[person]
                         .trim()
-                        .split('/')[0]] ||
+                        .split('/')[showFutureValue ? 1 : 0]] ||
                         0;
                 }
-                console.log(skill, singleLine);
                 return newArray.concat({ axis: skill, value });
             }
             return newArray;
@@ -22,14 +21,17 @@ function getHardSkills(allFields, person) {
     );
 }
 
-function getSoftSkills(allFields, person) {
+function getSoftSkills(allFields, person, showFutureValue) {
     return allFields.reduce(
         (newArray, singleLine) => {
             const { type, skill } = singleLine;
             if (type.toLowerCase() === 'soft') {
                 let value = 0;
                 if (person) {
-                    value = Number(singleLine[person].split('/')[0] / 5);
+                    value = Number(
+                        singleLine[person].split('/')[showFutureValue ? 1 : 0] /
+                            5
+                    );
                 }
                 return newArray.concat({ axis: skill, value });
             }
@@ -40,13 +42,13 @@ function getSoftSkills(allFields, person) {
 }
 
 function initSelect(surnames, wholeData, keysObject) {
-    console.log(keysObject);
     document.querySelector('.select-holder').innerHTML = `
     <select name="user">
       <option value="-">-</option>
       ${surnames.map(singleSurname => {
         return `<option value="${singleSurname}">${keysObject[singleSurname]}</option>`;
     })}
+      <option value="all">All</option>
     </select>
   `;
 
@@ -56,14 +58,26 @@ function initSelect(surnames, wholeData, keysObject) {
             const value = event.target.value;
             if (value) {
                 if (value === 'all') {
-                    loadAll();
+                    loadAll(surnames, wholeData, keysObject);
                 } else {
-                    drawSpider('#chart', '#body', [ 'hard skills' ], [
-                        getHardSkills(wholeData, value)
-                    ]);
-                    drawSpider('#chart2', '#body2', [ 'soft skills' ], [
-                        getSoftSkills(wholeData, value)
-                    ]);
+                    drawSpider(
+                        '#chart',
+                        '#body',
+                        [ 'hard skills', 'hard skills future' ],
+                        [
+                            getHardSkills(wholeData, value, true),
+                            getHardSkills(wholeData, value)
+                        ]
+                    );
+                    drawSpider(
+                        '#chart2',
+                        '#body2',
+                        [ 'soft skills', 'soft skills future' ],
+                        [
+                            getSoftSkills(wholeData, value, true),
+                            getSoftSkills(wholeData, value)
+                        ]
+                    );
                 }
             }
         });

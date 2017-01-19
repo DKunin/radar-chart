@@ -25,7 +25,7 @@ var RadarChart = {
             TranslateY: 30,
             ExtraWidthX: 100,
             ExtraWidthY: 100,
-            color: d3.scale.category10()
+            color: d3.scale.category20()
         };
 
         if ('undefined' !== typeof options) {
@@ -321,8 +321,8 @@ function drawSpider(
     w = 300,
     h = 300
 ) {
-    var colorscale = d3.scale.category10();
-
+    //var colorscale = d3.scale.category10();
+    var colorscale = d3.scale.category20();
     //Legend titles
     var LegendOptions = legend;
 
